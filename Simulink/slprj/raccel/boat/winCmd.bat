@@ -1,0 +1,2 @@
+chcp 65001
+cmd /D /c start "RapidAccelerator" /B "F:\Programming\P761\Simulink\slprj\raccel\boat\boat.exe" --config "C:\Users\nl\AppData\Local\Temp\raccel_inputp42bfcc85_7388_44a4_acfc_9a70dbe65331.cfg" -server_info_file "C:\Users\nl\AppData\Local\Temp\tpp42bfcc85_7388_44a4_acfc_9a70dbe65331.info" -tgtconn_server_info_file "C:\Users\nl\AppData\Local\Temp\tgtconnp42bfcc85_7388_44a4_acfc_9a70dbe65331.info" -tgtconn_port 0 -port 0 -w >"F:\Programming\P761\Simulink\slprj\raccel\boat\cmdLog.txt"
