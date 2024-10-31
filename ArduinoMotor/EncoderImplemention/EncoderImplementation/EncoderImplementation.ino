@@ -4,10 +4,10 @@
 #define CW_PIN 5 // Clockwise motor pin
 #define CCW_PIN 6 // Counter-clockwise motor pin
 
+#define ppr 10347 // Pulses per revolution of your encoder
 
 volatile long positionCount = 0;
 int lastAState = LOW;
-int ppr = 10347;  // Pulses per revolution of your encoder
 float degreesPerPulse = 2*math.pi / (float)ppr;
  
 void setup() {
@@ -57,4 +57,22 @@ void updatePosition() {
     }
   }
   lastAState = aState;
+}
+
+void refTracking(float deltaRotation){
+  goalPositionCount = positionCount + deltaRotation*ppr/360;
+  allowedTrackingError= ppr*12/360;
+  while(!(isInRange(positionCount, goalPositionCount-allowedTrackingError, goalPositionCount+allowedTrackingError))){ 
+    if(positionCount<goalPositionCount){
+      digitalwrite(CW_PIN, LOW);
+      digitalwrite(CCW_PIN, HIGH);
+    }
+    if(positionCount<goalPositionCount){
+      digitalwrite(CCW_PIN, LOW);
+      digitalwrite(CW_PIN, HIGH);
+    }
+  }
+  digitalwrite(CW_PIN, LOW);
+  digitalwrite(CCW_PIN, LOW);
+  digitalwrite(STOP_PIN, HIGH);
 }
