@@ -4,11 +4,13 @@
 #define CW_PIN 5 // Clockwise motor pin
 #define CCW_PIN 6 // Counter-clockwise motor pin
 
-#define ppr 10347 // Pulses per revolution of your encoder
+
 
 volatile long positionCount = 0;
 int lastAState = LOW;
-float degreesPerPulse = 2*math.pi / (float)ppr;
+const int ppr = 10347;  // Pulses per revolution of your encoder
+float degreesPerPulse = (float)ppr / 180;
+float goalAngle = 0;
  
 void setup() {
   pinMode(ENCODER_A_PIN, INPUT);
@@ -22,25 +24,27 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(ENCODER_A_PIN), updatePosition, CHANGE);
   attachInterrupt(digitalPinToInterrupt(ENCODER_B_PIN), updatePosition, CHANGE);
   Serial.begin(115200);
+  goalAngle = ((float)Serial.readStringUntil('\n')+180.0) % 360 - 180;
+  
   //Serial.print("degreesPerPulse:");
   //Serial.println(degreesPerPulse);
 }
  
 void loop() {
-  float angle = positionCount * degreesPerPulse;
-
+  float currentAngle = (positionCount * degreesPerPulse + 180.0) % 360 - 180;
   Serial.print("Current angle: ");
-  Serial.println(180*angle/math.pi);
-  
-
+  Serial.println(currentAngle);
+  refTracking(getDeltaRotation(currentAngle, goalAngle));
   delay(100);
 }
+
+
  
-//void angleLimitLogic(float goalAngle) {
-//  direction == (goalAngle - angle <= 0) 
-//  
-//
-//}
+float getDeltaRotation(float currentAngle, float goalAngle){ // currentangle{
+  bool counterClockwise = ?(goalAngle - currentAngle > 0) : -1; // direction of travel
+  return float counterClockwise * (goalAngle - currentAngle / 180); // delta angle
+
+}
 
 
 
