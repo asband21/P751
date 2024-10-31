@@ -10,7 +10,7 @@ volatile long positionCount = 0;
 int lastAState = LOW;
 const int ppr = 10347;  // Pulses per revolution of your encoder
 float degreesPerPulse = (float)ppr / 180;
-float goalAngle = 0;
+int goalAngle = 0;
  
 void setup() {
   pinMode(ENCODER_A_PIN, INPUT);
@@ -18,20 +18,20 @@ void setup() {
   pinMode(CCW_PIN, OUTPUT);
   pinMode(CW_PIN, OUTPUT);
   pinMode(STOP_PIN, OUTPUT);
-  digitalwrite(CW_PIN, LOW);
-  digitalwrite(CCW_PIN, LOW);
-  digitalwrite(STOP_PIN, LOW);
+  digitalWrite(CW_PIN, LOW);
+  digitalWrite(CCW_PIN, LOW);
+  digitalWrite(STOP_PIN, LOW);
   attachInterrupt(digitalPinToInterrupt(ENCODER_A_PIN), updatePosition, CHANGE);
   attachInterrupt(digitalPinToInterrupt(ENCODER_B_PIN), updatePosition, CHANGE);
   Serial.begin(115200);
-  goalAngle = ((float)Serial.readStringUntil('\n')+180.0) % 360 - 180;
+  goalAngle = (Serial.readStringUntil('\n').toInt()+180) % 360 - 180; // Angle doesnt need to be a float for our application, the % doesnt seem to work on double and float
   
   //Serial.print("degreesPerPulse:");
   //Serial.println(degreesPerPulse);
 }
  
 void loop() {
-  float currentAngle = (positionCount * degreesPerPulse + 180.0) % 360 - 180;
+  float currentAngle = (positionCount * degreesPerPulse + 180) % 360 - 180;
   Serial.print("Current angle: ");
   Serial.println(currentAngle);
   refTracking(getDeltaRotation(currentAngle, goalAngle));
@@ -40,11 +40,22 @@ void loop() {
 
 
  
-float getDeltaRotation(float currentAngle, float goalAngle){ // currentangle{
-  bool counterClockwise = ?(goalAngle - currentAngle > 0) : -1; // direction of travel
-  return float counterClockwise * (goalAngle - currentAngle / 180); // delta angle
+// float getDeltaRotation(float currentAngle, float goalAngle){ // currentangle{
+//   bool counterClockwise = ?(goalAngle - currentAngle > 0) : -1; // direction of travel
+//   return counterClockwise * (goalAngle - currentAngle / 180); // delta angle
 
+// }
+
+float getDeltaRotation(float currentAngle, float goalAngle) { //Chatgpt did this one but if you want you can debug yours
+  float delta = goalAngle - currentAngle;
+  if (delta > 180) {
+    delta -= 360; 
+  } else if (delta < -180) {
+    delta += 360;  
+  }
+  return delta;
 }
+
 
 
 
@@ -64,19 +75,19 @@ void updatePosition() {
 }
 
 void refTracking(float deltaRotation){
-  goalPositionCount = positionCount + deltaRotation*ppr/360;
-  allowedTrackingError= ppr*12/360;
-  while(!(isInRange(positionCount, goalPositionCount-allowedTrackingError, goalPositionCount+allowedTrackingError))){ 
+  long goalPositionCount = positionCount + deltaRotation*ppr/360;
+  int allowedTrackingError= ppr*12/360;
+  while(!(positionCount>goalPositionCount-allowedTrackingError && positionCount<=goalPositionCount+allowedTrackingError)){ 
     if(positionCount<goalPositionCount){
-      digitalwrite(CW_PIN, LOW);
-      digitalwrite(CCW_PIN, HIGH);
+      digitalWrite(CW_PIN, LOW);
+      digitalWrite(CCW_PIN, HIGH);
     }
-    if(positionCount<goalPositionCount){
-      digitalwrite(CCW_PIN, LOW);
-      digitalwrite(CW_PIN, HIGH);
+    if(positionCount>goalPositionCount){
+      digitalWrite(CCW_PIN, LOW);
+      digitalWrite(CW_PIN, HIGH);
     }
   }
-  digitalwrite(CW_PIN, LOW);
-  digitalwrite(CCW_PIN, LOW);
-  digitalwrite(STOP_PIN, HIGH);
+  digitalWrite(CW_PIN, LOW);
+  digitalWrite(CCW_PIN, LOW);
+  digitalWrite(STOP_PIN, HIGH);
 }
