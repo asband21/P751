@@ -11,7 +11,7 @@ volatile long positionCount = 0;
 int lastAState = LOW;
 const float ppr = 10347;  // Pulses per revolution of your encoder
 float degreesPerPulse = (float)ppr / 180;
-int goalAngle = 0;
+float goalAngle = 0;
  
 void setup() {
   pinMode(ENCODER_A_PIN, INPUT);
@@ -25,7 +25,9 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(ENCODER_A_PIN), updatePosition, CHANGE);
   attachInterrupt(digitalPinToInterrupt(ENCODER_B_PIN), updatePosition, CHANGE);
   Serial.begin(115200);
-  goalAngle = (Serial.readStringUntil('\n').toInt()+180) % 360 - 180; // Angle doesnt need to be a float for our application, the % doesnt seem to work on double and float
+
+  goalAngleInput = (Serial.readStringUntil('\n').toFloat()); // Read the input goalAngle and convert to float
+  goalAngle = fmod((goalAngleInput+180), (360 - 180); // Ensure input goalAngle are not out of bounds
   
   //Serial.print("degreesPerPulse:");
   //Serial.println(degreesPerPulse);
