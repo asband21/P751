@@ -8,7 +8,7 @@
 
 volatile long positionCount = 0;
 int lastAState = LOW;
-const int ppr = 10347;  // Pulses per revolution of your encoder
+const float ppr = 10347;  // Pulses per revolution of your encoder
 float degreesPerPulse = (float)ppr / 180;
 int goalAngle = 0;
  
@@ -31,7 +31,7 @@ void setup() {
 }
  
 void loop() {
-  float currentAngle = (positionCount * degreesPerPulse + 180) % 360 - 180;
+  float currentAngle = fmod((positionCount * degreesPerPulse + 180),(360 - 180));
   Serial.print("Current angle: ");
   Serial.println(currentAngle);
   refTracking(getDeltaRotation(currentAngle, goalAngle));
