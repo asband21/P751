@@ -3,6 +3,7 @@
 #define STOP_PIN 4 // Stop pin for testing 
 #define CW_PIN 5 // Clockwise motor pin
 #define CCW_PIN 6 // Counter-clockwise motor pin
+#define ALLOWEDERROR 2
 
 
 
@@ -74,18 +75,24 @@ void updatePosition() {
   lastAState = aState;
 }
 
-void refTracking(float deltaRotation){
-  long goalPositionCount = positionCount + deltaRotation*ppr/360;
-  int allowedTrackingError= ppr*12/360;
-  while(!(positionCount>goalPositionCount-allowedTrackingError && positionCount<=goalPositionCount+allowedTrackingError)){ 
-    if(positionCount<goalPositionCount){
+
+void refTracking(float deltaRotation) {
+  long int goalPositionCount = positionCount + deltaRotation*ppr/360;
+  long int allowedTrackingError= ppr*ALLOWEDERROR/360;
+  Serial.println(goalPositionCount);
+  Serial.println(allowedTrackingError);
+  while (!(positionCount > goalPositionCount - allowedTrackingError && positionCount <= goalPositionCount + allowedTrackingError)) { 
+    if (positionCount < goalPositionCount) {
+      digitalWrite(STOP_PIN, LOW);
       digitalWrite(CW_PIN, LOW);
       digitalWrite(CCW_PIN, HIGH);
     }
-    if(positionCount>goalPositionCount){
+    if (positionCount > goalPositionCount) {
+      digitalWrite(STOP_PIN, LOW);
       digitalWrite(CCW_PIN, LOW);
       digitalWrite(CW_PIN, HIGH);
     }
+    delay(10);
   }
   digitalWrite(CW_PIN, LOW);
   digitalWrite(CCW_PIN, LOW);
