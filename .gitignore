@@ -1,3 +1,4 @@
 
 *.slxc
 Simulink/slprj/
+GPS/rolling_average/gps_data
