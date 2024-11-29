@@ -5,6 +5,8 @@ import serial
 from datetime import datetime
 
 # Constants
+COM_PORT = "COM5"  # Set the COM port here
+BAUD_RATE = 9600   # Set the baud rate here
 DATA_DIR = "gps_data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -48,15 +50,15 @@ def read_serial_data(serial_port, baud_rate=9600):
 
 def plot_satellite_count(data, save_dir):
     """
-    Plots satellite count over time.
+    Plots satellite count over time starting from the 10th measurement.
     """
-    satellite_data = data["Satellite Count"]
+    satellite_data = data["Satellite Count"].iloc[9:]  # Skip first 9 measurements
 
     plt.figure(figsize=(12, 6))
     plt.plot(satellite_data, label="Satellite Count", marker='o', linestyle='-', alpha=0.7)
     plt.xlabel("Index")
     plt.ylabel("Satellite Count")
-    plt.title("Satellite Count Over Time")
+    plt.title("Satellite Count Over Time (Starting from 10th Measurement)")
     plt.legend()
     plt.grid()
     satellite_path = os.path.join(save_dir, "satellite_count.png")
@@ -66,17 +68,17 @@ def plot_satellite_count(data, save_dir):
 
 def plot_data(data, parameter_name, save_dir):
     """
-    Plots raw vs rolling average and their difference, including satellite count.
+    Plots raw vs rolling average and their difference, starting from the 10th measurement.
     """
-    raw_data = data[f"Raw {parameter_name}"]
-    avg_data = data[f"Avg {parameter_name}"]
+    raw_data = data[f"Raw {parameter_name}"].iloc[9:]  # Skip first 9 measurements
+    avg_data = data[f"Avg {parameter_name}"].iloc[9:]  # Skip first 9 measurements
 
     plt.figure(figsize=(12, 6))
     plt.plot(raw_data, label=f"Raw {parameter_name}", marker='o', linestyle='-', alpha=0.7)
     plt.plot(avg_data, label=f"Rolling Avg {parameter_name}", marker='x', linestyle='--', alpha=0.7)
     plt.xlabel("Index")
     plt.ylabel(parameter_name)
-    plt.title(f"Comparison of Raw and Rolling Avg for {parameter_name}")
+    plt.title(f"Comparison of Raw and Rolling Avg for {parameter_name} (Starting from 10th Measurement)")
     plt.legend()
     plt.grid()
     comparison_path = os.path.join(save_dir, f"{parameter_name.lower()}_comparison.png")
@@ -91,7 +93,7 @@ def plot_data(data, parameter_name, save_dir):
     plt.axhline(0, color='r', linestyle='--', label="Zero Difference")
     plt.xlabel("Index")
     plt.ylabel(f"Difference in {parameter_name}")
-    plt.title(f"Difference Between Raw and Rolling Avg for {parameter_name}")
+    plt.title(f"Difference Between Raw and Rolling Avg for {parameter_name} (Starting from 10th Measurement)")
     plt.legend()
     plt.grid()
     difference_path = os.path.join(save_dir, f"{parameter_name.lower()}_difference.png")
@@ -101,7 +103,7 @@ def plot_data(data, parameter_name, save_dir):
 
 def generate_plots(csv_folder, csv_file):
     """
-    Generates all plots for the data in the CSV file.
+    Generates all plots for the data in the CSV file, starting from the 10th measurement.
     """
     data = pd.read_csv(csv_file)
     save_dir = os.path.join(csv_folder, "plots")
@@ -113,7 +115,7 @@ def generate_plots(csv_folder, csv_file):
     plot_data(data, "Altitude", save_dir)
     plot_satellite_count(data, save_dir)
 
-def main(serial_port="COM6"):
+def main(serial_port=COM_PORT):
     """
     Main function to read data, save to CSV, and generate plots.
     """
@@ -121,5 +123,5 @@ def main(serial_port="COM6"):
     generate_plots(csv_folder, csv_file)
 
 if __name__ == "__main__":
-    main(serial_port="COM6")
+    main(serial_port=COM_PORT)
 

@@ -5,7 +5,7 @@ import socket
 import struct
 
 # Serial port setup for Arduino
-arduino_port = 'COM6'  # Replace with your Arduino's COM port
+arduino_port = 'COM5'  # Replace with your Arduino's COM port
 baud_rate = 9600       # Match the baud rate used in the Arduino code
 timeout = 1            # Timeout for serial communication
 

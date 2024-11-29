@@ -1,8 +1,8 @@
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 
-#define GPS_RX 10
-#define GPS_TX 11
+#define GPS_RX 10 // Yellow
+#define GPS_TX 11 // Orange
 #define WINDOW_SIZE 100
 
 TinyGPSPlus gps;
@@ -18,7 +18,7 @@ void setup() {
   Serial.begin(9600);  // For PC communication
   gpsSerial.begin(9600);  // GPS module communication
   Serial.println("GPS Data with Rolling Averages and Satellite Count");
-  Serial.println("Lat,Lng,Alt,AvgLat,AvgLng,AvgAlt,Satellites");
+  //Serial.println("Lat,Lng,Alt,AvgLat,AvgLng,AvgAlt,Satellites");
 }
 
 void loop() {
