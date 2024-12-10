@@ -1,23 +1,21 @@
 function [x_hat,P] = extended_kalman_filter_sim(time, olde_time, P_m1, Xp_m1, u_m1, y)
     td = time - olde_time;
-        m = 1500; b = -1000;
+    m = 1500; 
+    b = -1000;
     Q_m1 = diag([1e-5, 1e-5, 1e-5]);
     R = diag([1e-2, 1e-3, 1e-2]);
     
     h = @(Xp_m1) [Xp_m1(1); 0; 0];
-    f = @(xp_m1, u_m1) xp_m1 + [0, 1, 0 ;0, b/m+xp_m1(3), 0; 0, 0, 0]*xp_m1*td + [0, 1/m, 0]*td*u_m1;% + [0;0;Xp_m1(3)];
-    %f = @(xp_m1, u_m1) xp_m1 + [0, 1, 0; 0, (b+bc)/m, 0; 0, 0, 1]*xp_m1*td + [0, 1/m, 0]*td*u_m1;
-    %                  0, bc/m, b/m;
-    %                  0, 0, 0 ]*diag(Xp_m1)% to Jacobian of the system state.
+    f = @(xp_m1, u_m1) xp_m1 + [0, 1, 0 ;0, b/m+xp_m1(3)/m, 0; 0, 0, 0]*xp_m1*td + [0, 1/m, 0]*td*u_m1;% + [0;0;Xp_m1(3)];
     F_m1 = @(Xp_m1) [1, td, 0;
-                     0, 1+td*(b/m+Xp_m1(3)), td;
+                     0, 1+td*(b/m+Xp_m1(3)/m), td/m;
                      0, 0, 1];
                       
     L_m1 = @(w) [1, 0, 0;
                  0, 1, 0;
                  0, 0, 1];
     H_f = @(Xp_m1) [1, 0, 0; % C matrix
-                    0, 1, 1;
+                    0, 0, 0;
                     0, 0, 0];
     
     M_f = @(Xp_m1) [1, 0, 0;
